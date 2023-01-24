@@ -1,24 +1,29 @@
 <?php
 /**
  * Plugin Name:          WooPacket
+ * Text Domain:          woo_packet
  * Plugin URI:           https://www.roadpass.com.br/
  * Description:          Envios para o Brasil via Correios
+ * Version:              1.0.0
+ *
  * Author:               Mateus Costa
  * Author URI:           https://costamateus.com.br/
- * Version:              1.0.0
- * Text Domain:          woo_packet
+ *
  * RequiresPHP:          7.4
  * RequiresWP:           6.0
  * WC requires at least: 6.3
  * WC tested up to:      6.9
  *
- * @package Woo_Packet
+ * @since	1.0.0
+ * @package	Woo_Packet
  */
 defined( "ABSPATH" ) || exit;
 
+if ( ! in_array( "woocommerce/woocommerce.php", apply_filters( "active_plugins", get_option( "active_plugins" ) ) ) ) return;
+
 // Plugin constants.
-define( "WPACKET_VERSION",     "1.0.0"  );
-define( "WPACKET_PLUGIN_FILE", __FILE__ );
+define( "WOO_PACKET_VERSION",     "1.0.0"  );
+define( "WOO_PACKET_PLUGIN_FILE", __FILE__ );
 
 if ( !class_exists( "Woo_Packet" ) )
 {
