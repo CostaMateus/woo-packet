@@ -2,7 +2,7 @@
 /**
  * Plugin Name:          WooPacket
  * Text Domain:          woo_packet
- * Plugin URI:           https://www.roadpass.com.br/
+ * Plugin URI:           https://costamateus.com.br/
  * Description:          Envios para o Brasil via Correios
  * Version:              1.0.0
  *
@@ -22,11 +22,12 @@ defined( "ABSPATH" ) || exit;
 if ( ! in_array( "woocommerce/woocommerce.php", apply_filters( "active_plugins", get_option( "active_plugins" ) ) ) ) return;
 
 // Plugin constants.
-define( "WOO_PACKET_VERSION",     "1.0.0"  );
-define( "WOO_PACKET_PLUGIN_FILE", __FILE__ );
+define( "WOO_PACKET_VERSION", "1.0.0"      );
+define( "WOO_PACKET_DOMAIN",  "woo_packet" );
+define( "WOO_PACKET_FILE",    __FILE__     );
 
 if ( !class_exists( "Woo_Packet" ) )
 {
 	include_once dirname( __FILE__ ) . "/includes/class-woo-packet.php";
-	add_action( "plugins_loaded", [ "Woo_Packet", "init" ] );
+	add_action( "plugins_loaded", [ "Woo_Packet", "init" ], 111 );
 }
