@@ -39,13 +39,17 @@ class Woo_Packet
 			// API Class
 			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-api.php";
 
-			add_action( "admin_menu", [ $this, "add_admin_menu" ], 11 );
-			add_action( "admin_init", [ $this, "register_and_build_fields" ]    );
+			add_action( "admin_menu",                            [ $this, "add_admin_menu"            ], 11 );
+			add_action( "admin_init",                            [ $this, "register_and_build_fields" ]     );
+			add_action( "manage_shop_order_posts_custom_column", [ $this, "add_column_content_order"  ]     );
+			// add_action( "admin_print_styles",                    [ $this, "add_style_column"          ]     );
+			add_action( "wp_ajax_generate_tag_correios",         [ $this, "generate_tag_correios"     ]     );
 
-			add_filter( "plugin_action_links_" . plugin_basename( WOO_PACKET_FILE ), [ $this, "plugin_action_links" ]        );
+			add_filter( "plugin_action_links_" . plugin_basename( WOO_PACKET_FILE ), [ $this, "plugin_action_links"    ]     );
+			add_filter( "manage_edit-shop_order_columns",                            [ $this, "add_column_title_order" ], 20 );
 
-			wp_enqueue_style( WOO_PACKET_DOMAIN, plugin_dir_url( dirname( __FILE__ ) ) . "assets/css/admin.css", [], WOO_PACKET_VERSION, "all" );
-			wp_enqueue_script( WOO_PACKET_DOMAIN, plugin_dir_url( dirname( __FILE__ ) ) . "assets/js/admin.js", [ "jquery" ], WOO_PACKET_VERSION, false );
+			wp_enqueue_style(  WOO_PACKET_DOMAIN, plugin_dir_url( dirname( __FILE__ ) ) . "assets/css/admin.css", [],           WOO_PACKET_VERSION, "all" );
+			wp_enqueue_script( WOO_PACKET_DOMAIN, plugin_dir_url( dirname( __FILE__ ) ) . "assets/js/admin.js",   [ "jquery" ], WOO_PACKET_VERSION, false );
 		}
 		else
 		{
@@ -232,7 +236,7 @@ class Woo_Packet
 			}
 			else
 			{
-				echo "<input type='{$args[ "subtype" ]}' id='{$args[ "id" ]}' {$required} name='{$args[ "name" ]}' value='" . esc_attr( $value ) . "' />";
+				echo "<input class='input-woopacket' type='{$args[ "subtype" ]}' id='{$args[ "id" ]}' {$required} name='{$args[ "name" ]}' value='" . esc_attr( $value ) . "' />";
 			}
 		}
 		else
@@ -256,4 +260,100 @@ class Woo_Packet
 		register_setting( $page, $field[ "key" ] );
 	}
 
+	/**
+	 * Adds 'WooPacket' column header to 'Orders' page immediately after 'Status' column.
+	 *
+	 * @since 	1.0.0
+	 *
+	 * @param 	array $columns
+	 * @return 	array $new_columns
+	 */
+	function add_column_title_order( $columns )
+	{
+		$new_columns = [];
+
+		foreach ( $columns as $column_name => $column_info )
+		{
+			$new_columns[ $column_name ] = $column_info;
+			$name                        = "order_" . WOO_PACKET_DOMAIN;
+
+			if ( "order_status" === $column_name )
+				$new_columns[ $name ] = "WooPacket";
+		}
+
+		return $new_columns;
+	}
+
+	/**
+	 * Adds 'WooPacket' column content to 'Orders' page immediately after 'Status' column.
+	 *
+	 * @since 	1.0.0
+	 *
+	 * @param 	array $column name of column being displayed
+	 */
+	function add_column_content_order( $column )
+	{
+		global $post;
+
+		$name = "order_" . WOO_PACKET_DOMAIN;
+
+		if ( $name === $column )
+		{
+			$url  = home_url()     . "/wp-content/uploads/woo-packet-tags/order_{$post->ID}.pdf";
+			$path = WP_CONTENT_DIR . "/uploads/woo-packet-tags/order_{$post->ID}.pdf";
+
+			$text = ( file_exists( $path ) )
+						? "<a href='{$url}' target='_blank' download >Baixar etiqueta</a>"
+						: "<a onclick='return wooPacketGenerateTag({$post->ID});' >Gerar etiqueta</a>";
+
+			echo $text;
+		}
+	}
+
+	// /**
+	//  * Adjusts the styles for the new 'WooPacket' column.
+	//  *
+	//  * @since 	1.0.0
+	//  */
+	// function add_style_column()
+	// {
+	// 	$css = ".widefat .column-order_date, .widefat .column-order_  . WOO_PACKET_DOMAIN{ width: 9%; }";
+	// 	wp_add_inline_style( "woocommerce_admin_styles", $css );
+	// }
+
+	/**
+	 * Generate tag Correios
+	 *
+	 * @return void
+	 */
+	function generate_tag_correios()
+	{
+        $order_id = $_POST[ "order_id" ];
+
+		$path     = WP_CONTENT_DIR . "/uploads/woo-packet-tags/";
+
+		if ( !file_exists( $path ) ) mkdir( $path, 0755 );
+
+		$location = $path . "/order_{$order_id}.log";
+
+		if ( file_put_contents( $location, file_get_contents( "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" ) ) )
+		{
+			$result = [
+				"code"    => 200,
+				"error"   => false,
+				"message" => "Etiqueta gerada com sucesso!"
+			];
+		}
+		else
+		{
+			$result = [
+				"code"    => 400,
+				"error"   => true,
+				"message" => "Falha na criação da etiqueta"
+			];
+		}
+
+        echo json_encode( $result );
+        die();
+	}
 }
