@@ -5,7 +5,7 @@
         var open  = "open";
         var close = "close";
 
-        $( "<button class='close show-hide' style='line-height:24px;' type='button'>Ver</button>" ).insertAfter( $( "input[type='password']" ) );
+        $( "<button class='close show-hide' style='line-height:24px;' type='button'>Ver</button>" ).insertAfter( $( ".input-woopacket" ) );
         $( ".show-hide" ).on( "click", function() {
             if ( $( this ).hasClass( close ) )
             {
@@ -21,4 +21,28 @@
             }
         } );
     } );
+
+    window.wooPacketGenerateTag = function ( id )
+    {
+        $.ajax( {
+            url  : "/wp-admin/admin-ajax.php",
+            type : "POST",
+            data : {
+                action   : "generate_tag_correios",
+                order_id : id,
+            },
+            success : function( data ) {
+                let result = JSON.parse( data );
+
+                if ( result.error )
+                    console.log( result );
+                else
+                    window.location.reload();
+            },
+            error : function( err ) {
+                console.log( err );
+            }
+        } );
+    }
+
 } )( jQuery );
