@@ -1,0 +1,25 @@
+.woo-packet-d-none {
+    display: none !important;
+}
+.woo-packet-set-spin {
+    display: flex!important;
+    justify-content: center;
+}
+.woo-packet-spin-load {
+    width: 10px;
+    height: 10px;
+    margin: auto 5px;
+    border: 3px solid #F2F2F2;
+    border-top: 3px solid #AEAEAE;
+    border-radius: 50%;
+    -webkit-animation: woo-packet-spin 1s linear infinite;
+    animation: woo-packet-spin 1s linear infinite;
+}
+@-webkit-keyframes woo-packet-spin {
+    0%   { -webkit-transform: rotate(0deg);   }
+    100% { -webkit-transform: rotate(360deg); }
+}
+@keyframes woo-packet-spin {
+    0%   { transform: rotate(0deg);   }
+    100% { transform: rotate(360deg); }
+}
