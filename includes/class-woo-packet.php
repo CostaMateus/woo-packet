@@ -126,7 +126,7 @@ class Woo_Packet
 			[
 				"key"   => WOO_PACKET_DOMAIN . "_api_status",
 				"title" => "Ativar / Desativar",
-				"label" => "Ativar API Gateway",
+				"label" => "Ativar plugin",
 			],[
 				"key"   => WOO_PACKET_DOMAIN . "_api_user_id",
 				"title" => "ID usuário",
@@ -169,6 +169,10 @@ class Woo_Packet
 			],[
 				"key"   => WOO_PACKET_DOMAIN . "_shop_state",
 				"title" => "Estado",
+			],[
+				"key"   => WOO_PACKET_DOMAIN . "_shop_zipcode",
+				"title" => "CEP",
+				"span"  => "Apenas números.",
 			],
 		];
 
@@ -258,7 +262,7 @@ class Woo_Packet
 				"value"            => "",
 				"id"               => $field[ "key" ],
 				"name"             => $field[ "key" ],
-				"required"         => true,
+				"required"         => ( strpos( $field[ "key" ], "_shop_address_2" ) === false ) ? true : false,
 				"get_options_list" => "",
 				"value_type"       => "normal",
 				"wp_data"          => "option",
@@ -361,7 +365,7 @@ class Woo_Packet
 
 			$text = ( file_exists( $path ) )
 						? "<a href='{$url}' target='_blank' download >Baixar etiqueta</a>"
-						: "<a onclick='return wooPacketGenerateTag({$post->ID});' >Gerar etiqueta</a>";
+						: "<a onclick='return wooPacketGenerateTag(this, {$post->ID});' class='woo-packet-set-spin' >Gerar etiqueta <div class='woo-packet-d-none woo-packet-spin-load' ></div></a>";
 
 			echo $text;
 		}
