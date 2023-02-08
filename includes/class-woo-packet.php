@@ -119,35 +119,75 @@ class Woo_Packet
 	 */
 	public function register_and_build_fields()
 	{
-		$page    = WOO_PACKET_DOMAIN . "_general_settings";
-		$section = WOO_PACKET_DOMAIN . "_section";
+		$page        = WOO_PACKET_DOMAIN . "_general_settings";
+		$section     = WOO_PACKET_DOMAIN . "_section";
 
-		$fields  = [
+		$api_fields  = [
 			[
-				"key"   => WOO_PACKET_DOMAIN . "_status",
+				"key"   => WOO_PACKET_DOMAIN . "_api_status",
 				"title" => "Ativar / Desativar",
 				"label" => "Ativar API Gateway",
 			],[
-				"key"   => WOO_PACKET_DOMAIN . "_id",
+				"key"   => WOO_PACKET_DOMAIN . "_api_user_id",
 				"title" => "ID usuário",
 			],[
-				"key"   => WOO_PACKET_DOMAIN . "_user",
+				"key"   => WOO_PACKET_DOMAIN . "_api_user",
 				"title" => "Usuário",
 			],[
-				"key"   => WOO_PACKET_DOMAIN . "_pass",
+				"key"   => WOO_PACKET_DOMAIN . "_api_user_pass",
 				"title" => "Senha",
+			],
+		];
+
+		$shop_fields = [
+			[
+				"key"   => WOO_PACKET_DOMAIN . "_tag_prefix",
+				"title" => "Prefixo do pedido",
+				"span"  => "Ex: prefixo WC_. Código final ficará WC_1000 (prefixo + número do pedido).",
+			],[
+				"key"   => WOO_PACKET_DOMAIN . "_shop_name",
+				"title" => "Nome da loja",
+			],[
+				"key"   => WOO_PACKET_DOMAIN . "_shop_email",
+				"title" => "E-mail de contato",
+			],[
+				"key"   => WOO_PACKET_DOMAIN . "_shop_phone",
+				"title" => "Telefone de contato",
+				"span"  => "Apenas números.",
+			],[
+				"key"   => WOO_PACKET_DOMAIN . "_shop_address",
+				"title" => "Endereço",
+			],[
+				"key"   => WOO_PACKET_DOMAIN . "_shop_address_number",
+				"title" => "Número",
+			],[
+				"key"   => WOO_PACKET_DOMAIN . "_shop_address_2",
+				"title" => "Complemento",
+			],[
+				"key"   => WOO_PACKET_DOMAIN . "_shop_city",
+				"title" => "Cidade",
+			],[
+				"key"   => WOO_PACKET_DOMAIN . "_shop_state",
+				"title" => "Estado",
 			],
 		];
 
 		register_setting( $page, WOO_PACKET_DOMAIN . "_options" );
 
-		$this->add_allowed_options( $page, $fields );
+		$this->add_allowed_options( $page, [ $api_fields, $shop_fields ] );
 
-		add_settings_section( $section, "API Gateway", [ $this, "message_section" ], $page );
+		add_settings_section( "{$section}_api",  "API",              [ $this, "message_section" ], $page );
+		add_settings_section( "{$section}_shop", "<br><br>Etiqueta", [ $this, "message_section" ], $page );
 
-		foreach ( $fields as $index => $field )
+		foreach ( $api_fields  as $index => $field )
 		{
-			$this->add_settings_field( $index, $field, $page, $section );
+			$this->add_settings_field( $index, $field, $page, "{$section}_api" );
+			$this->register_settings( $field, $page );
+		}
+
+		foreach ( $shop_fields as $index => $field )
+		{
+			$this->add_settings_field( $index, $field, $page, "{$section}_shop" );
 			$this->register_settings( $field, $page );
 		}
 	}
@@ -165,8 +205,9 @@ class Woo_Packet
 	{
 		$new_options[ $page ] = [];
 
-		foreach ( $data as $field )
-			$new_options[ $page ][] = $field[ "key" ];
+		foreach ( $data as $sub )
+			foreach ( $sub as $field )
+				$new_options[ $page ][] = $field[ "key" ];
 
 		add_allowed_options( $new_options );
 	}
@@ -180,7 +221,11 @@ class Woo_Packet
 	 */
 	public function message_section( $args )
 	{
-		echo "<p>Configurações da API</p>";
+		if ( strpos( $args[ "id" ], "api"  ) !== false )
+			echo "<p>Configurações da API</p>";
+
+		if ( strpos( $args[ "id" ], "shop" ) !== false )
+			echo "<p>Configurações dos dados da etiqueta</p>";
 	}
 
 	/**
@@ -194,21 +239,31 @@ class Woo_Packet
 	 */
 	public function add_settings_field( $index, $field, $page, $section )
 	{
-		$subtype = ( $index == 0 ) ? "checkbox" : ( ( in_array( $index, [ 1, 2, 3 ] ) ) ? "password" : "text" ) ;
+		$subtype = "text";
+		$label   = "";
+		$span    = ( isset( $field[ "span" ] ) ) ? $span = $field[ "span" ] : "";
+
+		if ( strpos( $section, "api" ) !== false )
+		{
+			$subtype = ( $index == 0 ) ? "checkbox"        : ( ( in_array( $index, [ 1, 2, 3 ] ) ) ? "password" : "text" ) ;
+			$label   = ( $index == 0 ) ? $field[ "label" ] : "";
+		}
 
 		add_settings_field(
             $field[ "key" ], $field[ "title" ], [ $this, "render_settings_field" ], $page, $section,
 			[
 				"type"             => "input",
 				"subtype"          => $subtype,
-				"label"            => ( $index == 0 ) ? $field[ "label" ] : "",
+				"label"            => $label,
 				"value"            => "",
 				"id"               => $field[ "key" ],
 				"name"             => $field[ "key" ],
 				"required"         => true,
 				"get_options_list" => "",
 				"value_type"       => "normal",
-				"wp_data"          => "option"
+				"wp_data"          => "option",
+				"section"          => $section,
+				"span"             => $span,
 			]
 		);
 	}
@@ -223,11 +278,11 @@ class Woo_Packet
 	public function render_settings_field( $args )
 	{
 		$value  = get_option( $args[ "name" ] );
-		$status = get_option( WOO_PACKET_DOMAIN . "_status" );
+		$status = get_option( WOO_PACKET_DOMAIN . "_api_status" );
 
 		if ( $args[ "subtype" ] != "checkbox" )
 		{
-			$required = ( $args[ "required" ] && $status    ) ? "required='required'" : "";
+			$required = ( $args[ "required" ] && $status ) ? "required='required'" : "";
 
 			if ( isset( $args[ "disabled" ] ) )
 			{
@@ -236,7 +291,9 @@ class Woo_Packet
 			}
 			else
 			{
-				echo "<input class='input-woopacket' type='{$args[ "subtype" ]}' id='{$args[ "id" ]}' {$required} name='{$args[ "name" ]}' value='" . esc_attr( $value ) . "' />";
+				$class = ( strpos( $args[ "section" ], "api" ) !== false ) ? "input-woopacket" : "";
+				echo "<input class='{$class}' type='{$args[ "subtype" ]}' id='{$args[ "id" ]}' {$required} name='{$args[ "name" ]}' value='" . esc_attr( $value ) . "' />";
+				if ( $args[ "span" ] ) echo "<br><span style='font-size:12px' >{$args[ "span" ]}</span>";
 			}
 		}
 		else
