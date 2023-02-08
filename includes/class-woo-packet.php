@@ -39,11 +39,13 @@ class Woo_Packet
 			// API Class
 			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-api.php";
 
-			add_action( "admin_menu",                            [ $this, "add_admin_menu"            ], 11 );
-			add_action( "admin_init",                            [ $this, "register_and_build_fields" ]     );
-			add_action( "manage_shop_order_posts_custom_column", [ $this, "add_column_content_order"  ]     );
-			// add_action( "admin_print_styles",                    [ $this, "add_style_column"          ]     );
-			add_action( "wp_ajax_generate_tag_correios",         [ $this, "generate_tag_correios"     ]     );
+			add_action( "admin_menu",                                       [ $this, "add_admin_menu"            ], 11 );
+			add_action( "admin_init",                                       [ $this, "register_and_build_fields" ]     );
+			add_action( "manage_shop_order_posts_custom_column",            [ $this, "add_column_content_order"  ]     );
+			add_action( "wp_ajax_generate_tag_correios",                    [ $this, "generate_tag_correios"     ]     );
+			add_action( "woocommerce_product_options_general_product_data", [ $this, "add_product_field_ncm"     ]     );
+			add_action( "woocommerce_process_product_meta",                 [ $this, "save_product_field_ncm"    ]     );
+			// add_action( "admin_print_styles",                               [ $this, "add_style_column"          ]     );
 
 			add_filter( "plugin_action_links_" . plugin_basename( WOO_PACKET_FILE ), [ $this, "plugin_action_links"    ]     );
 			add_filter( "manage_edit-shop_order_columns",                            [ $this, "add_column_title_order" ], 20 );
@@ -381,6 +383,39 @@ class Woo_Packet
 	// 	$css = ".widefat .column-order_date, .widefat .column-order_  . WOO_PACKET_DOMAIN{ width: 9%; }";
 	// 	wp_add_inline_style( "woocommerce_admin_styles", $css );
 	// }
+
+	/**
+	 * Add _custom_product_ncm field to product
+	 *
+	 * @return void
+	 */
+	function add_product_field_ncm()
+	{
+		global $woocommerce, $post;
+
+		echo "<div class='product_custom_ncm' >";
+
+		woocommerce_wp_text_input( [
+			"id"          => "_custom_product_ncm",
+			"placeholder" => "Código NCM, 6 primeiros digitos",
+			"label"       => "Código NCM",
+			"desc_tip"    => "true"
+		] );
+
+		echo "</div>";
+	}
+
+	/**
+	 * Save _custom_product_ncm field change
+	 *
+	 * @param int|string $product_id
+	 * @return void
+	 */
+	function save_product_field_ncm( $product_id )
+	{
+		$ncm = $_POST[ "_custom_product_ncm" ];
+		if ( !empty( $ncm ) ) update_post_meta( $product_id, "_custom_product_ncm", esc_attr( $ncm ) );
+	}
 
 	/**
 	 * Generate tag Correios
