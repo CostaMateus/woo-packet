@@ -16,140 +16,160 @@ class Woo_Packet_Webservice
 	/**
 	 * Webservice URL.
 	 *
-	 * @var string
+	 * @since 	1.0.0
+	 * @var 	string
 	 */
 	private $_webservice = "http://ws.correios.com.br/calculador/CalcPrecoPrazo.aspx?";
 
 	/**
 	 * Shipping method ID.
 	 *
-	 * @var string
+	 * @since 	1.0.0
+	 * @var 	string
 	 */
 	protected $id = "woo-packet";
 
 	/**
 	 * ID from Correios service.
 	 *
-	 * @var string|array
+	 * @since 	1.0.0
+	 * @var 	string|array
 	 */
 	protected $service = "";
 
 	/**
 	 * WooCommerce package containing the products.
 	 *
-	 * @var array
+	 * @since 	1.0.0
+	 * @var 	array
 	 */
 	protected $package = null;
 
 	/**
 	 * Origin postcode.
 	 *
-	 * @var string
+	 * @since 	1.0.0
+	 * @var 	string
 	 */
 	protected $origin_postcode = "";
 
 	/**
 	 * Destination postcode.
 	 *
-	 * @var string
+	 * @since 	1.0.0
+	 * @var 	string
 	 */
 	protected $destination_postcode = "";
 
 	/**
 	 * Login.
 	 *
-	 * @var string
+	 * @since 	1.0.0
+	 * @var 	string
 	 */
 	protected $login = "";
 
 	/**
 	 * Password.
 	 *
-	 * @var string
+	 * @since 	1.0.0
+	 * @var 	string
 	 */
 	protected $password = "";
 
 	/**
 	 * Package height.
 	 *
-	 * @var float
+	 * @since 	1.0.0
+	 * @var 	float
 	 */
 	protected $height = 0;
 
 	/**
 	 * Package width.
 	 *
-	 * @var float
+	 * @since 	1.0.0
+	 * @var 	float
 	 */
 	protected $width = 0;
 
 	/**
 	 * Package diameter.
 	 *
-	 * @var float
+	 * @since 	1.0.0
+	 * @var 	float
 	 */
 	protected $diameter = 0;
 
 	/**
 	 * Package length.
 	 *
-	 * @var float
+	 * @since 	1.0.0
+	 * @var 	float
 	 */
 	protected $length = 0;
 
 	/**
 	 * Package weight.
 	 *
-	 * @var float
+	 * @since 	1.0.0
+	 * @var 	float
 	 */
 	protected $weight = 0;
 
 	/**
 	 * Minimum height.
 	 *
-	 * @var float
+	 * @since 	1.0.0
+	 * @var 	float
 	 */
 	protected $minimum_height = 2;
 
 	/**
 	 * Minimum width.
 	 *
-	 * @var float
+	 * @since 	1.0.0
+	 * @var 	float
 	 */
 	protected $minimum_width = 11;
 
 	/**
 	 * Minimum length.
 	 *
-	 * @var float
+	 * @since 	1.0.0
+	 * @var 	float
 	 */
 	protected $minimum_length = 16;
 
 	/**
 	 * Extra weight.
 	 *
-	 * @var float
+	 * @since 	1.0.0
+	 * @var 	float
 	 */
 	protected $extra_weight = 0;
 
 	/**
 	 * Declared value.
 	 *
-	 * @var string
+	 * @since 	1.0.0
+	 * @var 	string
 	 */
 	protected $declared_value = "0";
 
 	/**
 	 * Own hands.
 	 *
-	 * @var string
+	 * @since 	1.0.0
+	 * @var 	string
 	 */
 	protected $own_hands = "N";
 
 	/**
 	 * Receipt notice.
 	 *
-	 * @var string
+	 * @since 	1.0.0
+	 * @var 	string
 	 */
 	protected $receipt_notice = "N";
 
@@ -160,19 +180,23 @@ class Woo_Packet_Webservice
 	 * 2 – roll/prism
 	 * 3 - envelope
 	 *
-	 * @var string
+	 * @since 	1.0.0
+	 * @var 	string
 	 */
 	protected $format = "1";
 
 	/**
 	 * Logger.
 	 *
-	 * @var WC_Logger
+	 * @since 	1.0.0
+	 * @var 	WC_Logger
 	 */
 	protected $log = null;
 
 	/**
 	 * Initialize webservice.
+	 *
+	 * @since 	1.0.0
 	 */
 	public function __construct()
 	{
@@ -182,7 +206,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set the service
 	 *
-	 * @param string|array $service Service.
+	 * @since 	1.0.0
+	 * @param 	string|array 	$service Service.
 	 */
 	public function set_service( $service = "" )
 	{
@@ -192,7 +217,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set shipping package.
 	 *
-	 * @param array $package Shipping package.
+	 * @since 	1.0.0
+	 * @param 	array 	$package Shipping package.
 	 */
 	public function set_package( $package = [] )
 	{
@@ -213,7 +239,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set origin postcode.
 	 *
-	 * @param string $postcode Origin postcode.
+	 * @since 	1.0.0
+	 * @param 	string 	$postcode Origin postcode.
 	 */
 	public function set_origin_postcode( $postcode = "" )
 	{
@@ -223,7 +250,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set destination postcode.
 	 *
-	 * @param string $postcode Destination postcode.
+	 * @since 	1.0.0
+	 * @param 	string 	$postcode Destination postcode.
 	 */
 	public function set_destination_postcode( $postcode = "" )
 	{
@@ -233,7 +261,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set shipping package height.
 	 *
-	 * @param float $height Package height.
+	 * @since 	1.0.0
+	 * @param 	float 	$height Package height.
 	 */
 	public function set_height( $height = 0 )
 	{
@@ -243,7 +272,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set shipping package width.
 	 *
-	 * @param float $width Package width.
+	 * @since 	1.0.0
+	 * @param 	float 	$width Package width.
 	 */
 	public function set_width( $width = 0 )
 	{
@@ -253,7 +283,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set shipping package diameter.
 	 *
-	 * @param float $diameter Package diameter.
+	 * @since 	1.0.0
+	 * @param 	float 	$diameter Package diameter.
 	 */
 	public function set_diameter( $diameter = 0 )
 	{
@@ -263,7 +294,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set shipping package length.
 	 *
-	 * @param float $length Package length.
+	 * @since 	1.0.0
+	 * @param 	float 	$length Package length.
 	 */
 	public function set_length( $length = 0 )
 	{
@@ -273,7 +305,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set shipping package weight.
 	 *
-	 * @param float $weight Package weight.
+	 * @since 	1.0.0
+	 * @param 	float 	$weight Package weight.
 	 */
 	public function set_weight( $weight = 0 )
 	{
@@ -283,7 +316,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set minimum height.
 	 *
-	 * @param float $minimum_height Package minimum height.
+	 * @since 	1.0.0
+	 * @param 	float 	$minimum_height Package minimum height.
 	 */
 	public function set_minimum_height( $minimum_height = 2 )
 	{
@@ -293,7 +327,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set minimum width.
 	 *
-	 * @param float $minimum_width Package minimum width.
+	 * @since 	1.0.0
+	 * @param 	float 	$minimum_width Package minimum width.
 	 */
 	public function set_minimum_width( $minimum_width = 11 )
 	{
@@ -303,7 +338,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set minimum length.
 	 *
-	 * @param float $minimum_length Package minimum length.
+	 * @since 	1.0.0
+	 * @param 	float 	$minimum_length Package minimum length.
 	 */
 	public function set_minimum_length( $minimum_length = 16 )
 	{
@@ -313,7 +349,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set extra weight.
 	 *
-	 * @param float $extra_weight Package extra weight.
+	 * @since 	1.0.0
+	 * @param 	float 	$extra_weight Package extra weight.
 	 */
 	public function set_extra_weight( $extra_weight = 0 )
 	{
@@ -323,7 +360,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set declared value.
 	 *
-	 * @param string $declared_value Declared value.
+	 * @since 	1.0.0
+	 * @param 	string 	$declared_value Declared value.
 	 */
 	public function set_declared_value( $declared_value = "0" )
 	{
@@ -333,7 +371,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set own hands.
 	 *
-	 * @param string $own_hands Use "N" for no and "S" for yes.
+	 * @since 	1.0.0
+	 * @param 	string 	$own_hands Use "N" for no and "S" for yes.
 	 */
 	public function set_own_hands( $own_hands = "N" )
 	{
@@ -343,7 +382,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set receipt notice.
 	 *
-	 * @param string $receipt_notice Use "N" for no and "S" for yes.
+	 * @since 	1.0.0
+	 * @param 	string 	$receipt_notice Use "N" for no and "S" for yes.
 	 */
 	public function set_receipt_notice( $receipt_notice = "N" )
 	{
@@ -353,7 +393,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Set shipping package format.
 	 *
-	 * @param string $format Package format.
+	 * @since 	1.0.0
+	 * @param 	string 	$format Package format.
 	 */
 	public function set_format( $format = "1" )
 	{
@@ -363,7 +404,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Get height.
 	 *
-	 * @return float
+	 * @since 	1.0.0
+	 * @return 	float
 	 */
 	public function get_height()
 	{
@@ -373,7 +415,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Get width.
 	 *
-	 * @return float
+	 * @since 	1.0.0
+	 * @return 	float
 	 */
 	public function get_width()
 	{
@@ -383,7 +426,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Get diameter.
 	 *
-	 * @return float
+	 * @since 	1.0.0
+	 * @return 	float
 	 */
 	public function get_diameter()
 	{
@@ -393,7 +437,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Get length.
 	 *
-	 * @return float
+	 * @since 	1.0.0
+	 * @return 	float
 	 */
 	public function get_length()
 	{
@@ -403,7 +448,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Get weight.
 	 *
-	 * @return float
+	 * @since 	1.0.0
+	 * @return 	float
 	 */
 	public function get_weight()
 	{
@@ -413,9 +459,9 @@ class Woo_Packet_Webservice
 	/**
 	 * Fix number format for XML.
 	 *
-	 * @param  float $value  Value with dot.
-	 *
-	 * @return string        Value with comma.
+	 * @since 	1.0.0
+	 * @param  	float 	$value 	Value with dot.
+	 * @return 	string 			Value with comma.
 	 */
 	protected function float_to_string( $value )
 	{
@@ -427,7 +473,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Check if is available.
 	 *
-	 * @return bool
+	 * @since 	1.0.0
+	 * @return 	bool
 	 */
 	protected function is_available()
 	{
@@ -437,7 +484,8 @@ class Woo_Packet_Webservice
 	/**
 	 * Get shipping prices.
 	 *
-	 * @return SimpleXMLElement|array
+	 * @since 	1.0.0
+	 * @return 	SimpleXMLElement|array
 	 */
 	public function get_shipping()
 	{
@@ -498,6 +546,14 @@ class Woo_Packet_Webservice
 		return $shipping;
 	}
 
+	/**
+	 * Undocumented function
+	 *
+	 * @since 	1.0.0
+	 * @param 	string 	$source
+	 * @param 	integer $options
+	 * @return 	object
+	 */
 	private function wc_correios_safe_load_xml( $source, $options = 0 )
 	{
 		$old    = ( function_exists( "libxml_disable_entity_loader" ) ) ? libxml_disable_entity_loader( true ) : null;

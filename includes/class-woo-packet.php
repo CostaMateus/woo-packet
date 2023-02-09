@@ -25,7 +25,7 @@ class Woo_Packet
 	 * Return an instance of this class.
 	 *
 	 * @since 	1.0.0
-	 * @return 	object A single instance of this class.
+	 * @return 	object 	A single instance of this class.
 	 */
 	public static function init()
     {
@@ -67,7 +67,7 @@ class Woo_Packet
 	 * Action links.
 	 *
 	 * @since 	1.0.0
-	 * @param 	array $links
+	 * @param 	array 	$links
 	 * @return 	array
 	 */
 	public static function plugin_action_links( array $links )
@@ -106,6 +106,11 @@ class Woo_Packet
 		);
 	}
 
+	/**
+	 * Add template for menu page
+	 *
+	 * @since	1.0.0
+	 */
 	public function display_admin_menu()
 	{
 		if ( !current_user_can( "manage_options" ) ) wp_die( __( "Você não tem permissões suficientes para acessar esta página." ) );
@@ -206,10 +211,9 @@ class Woo_Packet
 	 * Adds plugin fields to allowed options
 	 *
 	 * @since 	1.0.0
-	 *
-	 * @param 	string $prefix
-	 * @param 	string $page
-	 * @param 	array $data
+	 * @param 	string 	$prefix
+	 * @param 	string 	$page
+	 * @param 	array 	$data
 	 */
 	public function add_allowed_options( $page, $data )
 	{
@@ -226,8 +230,7 @@ class Woo_Packet
 	 * Echos out any content at the top of the section (between heading and fields).
 	 *
 	 * @since 	1.0.0
-	 *
-	 * @param 	array $args
+	 * @param 	array 	$args
 	 */
 	public function message_section( $args )
 	{
@@ -242,10 +245,9 @@ class Woo_Packet
 	 * Configure each plugin field
 	 *
 	 * @since	1.0.0
-	 *
-	 * @param 	string $index
-	 * @param 	array $field
-	 * @param 	string $page
+	 * @param 	string 	$index
+	 * @param 	array 	$field
+	 * @param 	string 	$page
 	 */
 	public function add_settings_field( $index, $field, $page, $section )
 	{
@@ -282,8 +284,7 @@ class Woo_Packet
 	 * Renders each field according to the configured args
 	 *
 	 * @since 	1.0.0
-	 *
-	 * @param 	array $args
+	 * @param 	array 	$args
 	 */
 	public function render_settings_field( $args )
 	{
@@ -318,9 +319,8 @@ class Woo_Packet
 	 * Register each plugin field
 	 *
 	 * @since 	1.0.0
-	 *
-	 * @param 	array $field
-	 * @param 	string $page
+	 * @param 	array 	$field
+	 * @param 	string 	$page
 	 */
 	public function register_settings( $field, $page )
 	{
@@ -331,9 +331,8 @@ class Woo_Packet
 	 * Adds 'WooPacket' column header to 'Orders' page immediately after 'Status' column.
 	 *
 	 * @since 	1.0.0
-	 *
-	 * @param 	array $columns
-	 * @return 	array $new_columns
+	 * @param 	array 	$columns
+	 * @return 	array 	$new_columns
 	 */
 	function add_column_title_order( $columns )
 	{
@@ -355,8 +354,7 @@ class Woo_Packet
 	 * Adds 'WooPacket' column content to 'Orders' page immediately after 'Status' column.
 	 *
 	 * @since 	1.0.0
-	 *
-	 * @param 	array $column name of column being displayed
+	 * @param 	array 	$column name of column being displayed
 	 */
 	function add_column_content_order( $column )
 	{
@@ -391,7 +389,8 @@ class Woo_Packet
 	/**
 	 * Add _custom_product_ncm field to product
 	 *
-	 * @return void
+	 * @since 	1.0.0
+	 * @return 	void
 	 */
 	function add_product_field_ncm()
 	{
@@ -412,8 +411,9 @@ class Woo_Packet
 	/**
 	 * Save _custom_product_ncm field change
 	 *
-	 * @param int|string $product_id
-	 * @return void
+	 * @since 	1.0.0
+	 * @param 	int|string 	$product_id
+	 * @return 	void
 	 */
 	function save_product_field_ncm( $product_id )
 	{
@@ -426,7 +426,8 @@ class Woo_Packet
 	/**
 	 * Generate tag Correios
 	 *
-	 * @return void
+	 * @since 	1.0.0
+	 * @return 	void
 	 */
 	function generate_tag_correios()
 	{

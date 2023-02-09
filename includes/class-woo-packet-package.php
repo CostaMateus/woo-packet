@@ -16,16 +16,17 @@ class Woo_Packet_Package
 	/**
 	 * Order package.
 	 *
-	 * @var array
+	 * @since 	1.0.0
+	 * @var 	array
 	 */
 	protected $package = [];
 
 	/**
 	 * Sets the package.
 	 *
-	 * @param  array $package Package to calcule.
-	 *
-	 * @return array
+	 * @since 	1.0.0
+	 * @param  	array $package Package to calcule.
+	 * @return 	array
 	 */
 	public function __construct( $package = [] )
 	{
@@ -35,7 +36,8 @@ class Woo_Packet_Package
 	/**
 	 * Extracts the weight and dimensions from the package.
 	 *
-	 * @return array
+	 * @since 	1.0.0
+	 * @return 	array
 	 */
 	protected function get_package_data()
 	{
@@ -95,11 +97,11 @@ class Woo_Packet_Package
 	/**
 	 * Calculates the cubage of all products.
 	 *
-	 * @param  array $height Package height.
-	 * @param  array $width  Package width.
-	 * @param  array $length Package length.
-	 *
-	 * @return int
+	 * @since 	1.0.0
+	 * @param  	array 	$height 	Package	height.
+	 * @param  	array 	$width  	Package	width.
+	 * @param  	array 	$length 	Package	length.
+	 * @return 	int
 	 */
 	protected function cubage_total( $height, $width, $length )
 	{
@@ -118,11 +120,11 @@ class Woo_Packet_Package
 	/**
 	 * Get the max values.
 	 *
-	 * @param  array $height Package height.
-	 * @param  array $width  Package width.
-	 * @param  array $length Package length.
-	 *
-	 * @return array
+	 * @since 	1.0.0
+	 * @param 	array 	$height 	Package height.
+	 * @param 	array 	$width  	Package width.
+	 * @param 	array 	$length 	Package length.
+	 * @return 	array
 	 */
 	protected function get_max_values( $height, $width, $length )
 	{
@@ -136,12 +138,12 @@ class Woo_Packet_Package
 	/**
 	 * Calculates the square root of the scaling of all products.
 	 *
-	 * @param  array $height     Package height.
-	 * @param  array $width      Package width.
-	 * @param  array $length     Package length.
-	 * @param  array $max_values Package bigger values.
-	 *
-	 * @return float
+	 * @since 	1.0.0
+	 * @param 	array 	$height 	Package height.
+	 * @param 	array 	$width 		Package width.
+	 * @param 	array 	$length 	Package length.
+	 * @param 	array 	$max_values bigger values.
+	 * @return 	float
 	 */
 	protected function calculate_root( $height, $width, $length, $max_values )
 	{
@@ -165,11 +167,11 @@ class Woo_Packet_Package
 	/**
 	 * Sets the final cubage.
 	 *
-	 * @param  array $height Package height.
-	 * @param  array $width  Package width.
-	 * @param  array $length Package length.
-	 *
-	 * @return array
+	 * @since 	1.0.0
+	 * @param  	array 	$height	Package height.
+	 * @param  	array 	$width 	Package width.
+	 * @param  	array 	$length	Package length.
+	 * @return 	array
 	 */
 	protected function get_cubage( $height, $width, $length )
 	{
@@ -216,7 +218,8 @@ class Woo_Packet_Package
 	/**
 	 * Get the package data.
 	 *
-	 * @return array
+	 * @since 	1.0.0
+	 * @return 	array
 	 */
 	public function get_data()
 	{
