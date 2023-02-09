@@ -2,9 +2,11 @@
 /**
  * Plugin's main class
  *
- * @package Woo_Packet
- * @version 1.0
+ * @package Woo_Packet/Classes
+ * @since   1.0.0
+ * @version 1.0.0
  */
+defined( "ABSPATH" ) || exit;
 
 /**
  * Woo_Packet bootstrap class.
@@ -38,6 +40,8 @@ class Woo_Packet
 		{
 			// API Class
 			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-api.php";
+			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-package.php";
+			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-webservice.php";
 
 			add_action( "admin_menu",                                       [ $this, "add_admin_menu"            ], 11 );
 			add_action( "admin_init",                                       [ $this, "register_and_build_fields" ]     );
@@ -366,7 +370,7 @@ class Woo_Packet
 			$path = WP_CONTENT_DIR . "/uploads/woo-packet-tags/order_{$post->ID}.pdf";
 
 			$text = ( file_exists( $path ) )
-						? "<a href='{$url}' target='_blank' download >Baixar etiqueta</a>"
+						? "<a href='{$url}' target='_blank' download class='woo-packet-set-spin' >Baixar etiqueta</a>"
 						: "<a onclick='return wooPacketGenerateTag(this, {$post->ID});' class='woo-packet-set-spin' >Gerar etiqueta <div class='woo-packet-d-none woo-packet-spin-load' ></div></a>";
 
 			echo $text;
@@ -414,7 +418,9 @@ class Woo_Packet
 	function save_product_field_ncm( $product_id )
 	{
 		$ncm = $_POST[ "_custom_product_ncm" ];
-		if ( !empty( $ncm ) ) update_post_meta( $product_id, "_custom_product_ncm", esc_attr( $ncm ) );
+		update_post_meta( $product_id, "_custom_product_ncm", esc_attr( $ncm ) );
+
+		// if ( !empty( $ncm ) ) update_post_meta( $product_id, "_custom_product_ncm", esc_attr( $ncm ) );
 	}
 
 	/**
@@ -424,29 +430,58 @@ class Woo_Packet
 	 */
 	function generate_tag_correios()
 	{
-        $order_id = $_POST[ "order_id" ];
+		$api = new Woo_Packet_Api();
 
-		$path     = WP_CONTENT_DIR . "/uploads/woo-packet-tags/";
-
-		if ( !file_exists( $path ) ) mkdir( $path, 0755 );
-
-		$location = $path . "/order_{$order_id}.log";
-
-		if ( file_put_contents( $location, file_get_contents( "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" ) ) )
+		try
 		{
-			$result = [
-				"code"    => 200,
-				"error"   => false,
-				"message" => "Etiqueta gerada com sucesso!"
-			];
+			$order_id = $_POST[ "order_id" ];
+			$path     = WP_CONTENT_DIR . "/uploads/woo-packet-tags/";
+
+			if ( !file_exists( $path ) ) mkdir( $path, 0755 );
+
+			$location = $path . "/order_{$order_id}.pdf";
+			$result   = $api->generate_tag( $order_id );
+
+			if ( !$result[ "success" ] )
+				throw new Exception( "{$result[ "code" ]} - {$result[ "message" ]}" );
+
+			$data     = $result[ "data" ];
+
+			if ( $data[ "erro" ] || $data[ "codigo" ] != "00" )
+				throw new Exception( "{$data[ "codigo" ]} - {$data[ "mensagem" ]}" );
+
+			$tag      = $data[ "urldeclaracao" ];
+			$file     = file_put_contents( $location, file_get_contents( $tag ) );
+
+			if ( $file )
+			{
+				$result = [
+					"code"    => 200,
+					"error"   => false,
+					"message" => "Etiqueta gerada com sucesso!"
+				];
+			}
+			else
+			{
+				$result = [
+					"code"    => 400,
+					"error"   => true,
+					"message" => "Falha na criação da etiqueta!",
+					"data"    => $result,
+				];
+
+				$api->log( $result, "critical" );
+			}
 		}
-		else
+		catch ( Exception $e )
 		{
 			$result = [
-				"code"    => 400,
+				"code"    => 500,
 				"error"   => true,
-				"message" => "Falha na criação da etiqueta"
+				"message" => $e->getMessage(),
 			];
+
+            $api->log( $result, "critical" );
 		}
 
         echo json_encode( $result );
