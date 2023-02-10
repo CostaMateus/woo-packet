@@ -519,7 +519,7 @@ class Woo_Packet_Webservice
 
 		if ( is_wp_error( $response ) )
 		{
-			$this->log->add( $this->id, "WP_Error: " . $response->get_error_message(), "critical" );
+			$this->log( [ "WP_Error: " . $response->get_error_message() ], "critical" );
 		}
 		elseif ( $response[ "response" ][ "code" ] >= 200 && $response[ "response" ]["code" ] < 300 )
 		{
@@ -529,18 +529,14 @@ class Woo_Packet_Webservice
 			}
 			catch ( Exception $e )
 			{
-				$this->log->add( $this->id, "Correios WebServices invalid XML: " . $e->getMessage(), "critical" );
+				$this->log( [ "Correios WebServices invalid XML: " . $e->getMessage() ], "critical" );
 			}
 
-			if ( isset( $result->cServico ) )
-			{
-				$this->log->add( $this->id, "Correios WebServices response: " . print_r( $result, true ), "critical" );
-				$shipping = $result->cServico;
-			}
+			if ( isset( $result->cServico ) ) $shipping = $result->cServico;
 		}
 		else
 		{
-			$this->log->add( $this->id, "Error accessing the Correios WebServices: " . print_r( $response, true ), "critical" );
+			$this->log( [ "Error accessing the Correios WebServices: ", $response ], "critical" );
 		}
 
 		return $shipping;
@@ -569,4 +565,17 @@ class Woo_Packet_Webservice
 
 		return simplexml_import_dom( $dom );
 	}
+
+    /**
+     * Register log
+     *
+	 * @since 	1.0.0
+     * @param   array   $data
+     * @param   string  $type
+     * @return  void
+     */
+    public function log( $data, string $type )
+    {
+        $this->log->add( $this->id, json_encode( $data ), $type );
+    }
 }
