@@ -42,6 +42,7 @@ class Woo_Packet
 			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-api.php";
 			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-package.php";
 			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-webservice.php";
+			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-shipping.php";
 
 			add_action( "admin_menu",                                       [ $this, "add_admin_menu"            ], 11 );
 			add_action( "admin_init",                                       [ $this, "register_and_build_fields" ]     );
@@ -49,6 +50,7 @@ class Woo_Packet
 			add_action( "wp_ajax_generate_tag_correios",                    [ $this, "generate_tag_correios"     ]     );
 			add_action( "woocommerce_product_options_general_product_data", [ $this, "add_product_field_ncm"     ]     );
 			add_action( "woocommerce_process_product_meta",                 [ $this, "save_product_field_ncm"    ]     );
+			add_filter( "woocommerce_shipping_methods",                     [ $this, "shipping_method"           ]     );
 			// add_action( "admin_print_styles",                               [ $this, "add_style_column"          ]     );
 
 			add_filter( "plugin_action_links_" . plugin_basename( WOO_PACKET_FILE ), [ $this, "plugin_action_links"    ]     );
@@ -487,5 +489,18 @@ class Woo_Packet
 
         echo json_encode( $result );
         die();
+	}
+
+	/**
+	 * Include shipping to WooCommerce.
+	 *
+	 * @since 	1.0.0
+	 * @param 	array $methods Default shipping methods.
+	 * @return 	array
+	 */
+	public function shipping_method( $methods )
+	{
+        $methods[ "woo_packet" ] = "Woo_Packet_Shipping";
+		return $methods;
 	}
 }
