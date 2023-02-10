@@ -27,7 +27,7 @@ class Woo_Packet_Webservice
 	 * @since 	1.0.0
 	 * @var 	string
 	 */
-	protected $id = "woo-packet";
+	protected $id = WOO_PACKET_DOMAIN;
 
 	/**
 	 * ID from Correios service.

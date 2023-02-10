@@ -19,7 +19,7 @@
  */
 defined( "ABSPATH" ) || exit;
 
-if ( ! in_array( "woocommerce/woocommerce.php", apply_filters( "active_plugins", get_option( "active_plugins" ) ) ) ) return;
+if ( !in_array( "woocommerce/woocommerce.php", apply_filters( "active_plugins", get_option( "active_plugins" ) ) ) ) return;
 
 // Plugin constants.
 define( "WOO_PACKET_VERSION", "1.0.0"      );

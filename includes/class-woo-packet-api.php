@@ -13,7 +13,7 @@ defined( "ABSPATH" ) || exit;
  */
 class Woo_Packet_Api
 {
-	private $id         = "woo-packet";
+	private $id         = WOO_PACKET_DOMAIN;
 
 	private $api        = null;
 
@@ -433,7 +433,7 @@ class Woo_Packet_Api
     }
 
     /**
-     *
+     * Register log
      *
 	 * @since 	1.0.0
      * @param   array   $data
