@@ -14,6 +14,24 @@
 	<h2>Woo Packet</h2>
 	<h3 style="margin-top:0;" >Envios para o Brasil via Correios</h3>
 
+	<?php
+		$instance = null;
+		$shipping = new WC_Shipping_Zones();
+		$zones    = $shipping->get_zones();
+		$index    = array_key_first( $zones);
+		$methods  = $zones[ $index ][ "shipping_methods" ];
+
+		foreach ( $methods as $key => $method )
+			if ( $method && $method->id === Woo_Packet_Shipping::ID )
+				$instance = $method->instance_id;
+
+        $url      = esc_url( admin_url( "admin.php?page=wc-settings&tab=shipping&instance_id={$instance}" ) );
+        $text     = __( "Configurações método de entrega", Woo_Packet_Shipping::ID );
+        $link     = "<a href='{$url}' >{$text}</a>";
+
+        echo "<p>{$link}</p>";
+    ?>
+
 	<hr>
 	<?php settings_errors(); ?>
 
