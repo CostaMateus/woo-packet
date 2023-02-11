@@ -44,17 +44,18 @@ class Woo_Packet
 			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-webservice.php";
 			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-shipping.php";
 
-			add_action( "admin_menu",                                       [ $this, "add_admin_menu"            ], 11 );
-			add_action( "admin_init",                                       [ $this, "register_and_build_fields" ]     );
-			add_action( "manage_shop_order_posts_custom_column",            [ $this, "add_column_content_order"  ]     );
-			add_action( "wp_ajax_generate_tag_correios",                    [ $this, "generate_tag_correios"     ]     );
-			add_action( "woocommerce_product_options_general_product_data", [ $this, "add_product_field_ncm"     ]     );
-			add_action( "woocommerce_process_product_meta",                 [ $this, "save_product_field_ncm"    ]     );
-			add_filter( "woocommerce_shipping_methods",                     [ $this, "shipping_method"           ]     );
+			add_action( "admin_menu",                                       [ $this, "add_admin_menu"            ], 11   );
+			add_action( "admin_init",                                       [ $this, "register_and_build_fields" ]       );
+			add_action( "manage_shop_order_posts_custom_column",            [ $this, "add_column_content_order"  ]       );
+			add_action( "wp_ajax_generate_tag_correios",                    [ $this, "generate_tag_correios"     ]       );
+			add_action( "woocommerce_product_options_general_product_data", [ $this, "add_product_field_ncm"     ]       );
+			add_action( "woocommerce_process_product_meta",                 [ $this, "save_product_field_ncm"    ]       );
+			add_action( "woocommerce_order_status_changed",                 [ $this, "order_status_change"       ], 9, 4 );
 			// add_action( "admin_print_styles",                               [ $this, "add_style_column"          ]     );
 
 			add_filter( "plugin_action_links_" . plugin_basename( WOO_PACKET_FILE ), [ $this, "plugin_action_links"    ]     );
 			add_filter( "manage_edit-shop_order_columns",                            [ $this, "add_column_title_order" ], 20 );
+			add_filter( "woocommerce_shipping_methods",                              [ $this, "shipping_method"        ]     );
 
 			wp_enqueue_style(  WOO_PACKET_DOMAIN, plugin_dir_url( dirname( __FILE__ ) ) . "assets/css/admin.css", [],           WOO_PACKET_VERSION, "all" );
 			wp_enqueue_script( WOO_PACKET_DOMAIN, plugin_dir_url( dirname( __FILE__ ) ) . "assets/js/admin.js",   [ "jquery" ], WOO_PACKET_VERSION, false );
@@ -427,8 +428,6 @@ class Woo_Packet
 	{
 		$ncm = $_POST[ "_custom_product_ncm" ];
 		update_post_meta( $product_id, "_custom_product_ncm", esc_attr( $ncm ) );
-
-		// if ( !empty( $ncm ) ) update_post_meta( $product_id, "_custom_product_ncm", esc_attr( $ncm ) );
 	}
 
 	/**
@@ -508,5 +507,58 @@ class Woo_Packet
 	{
         $methods[ "woo_packet" ] = "Woo_Packet_Shipping";
 		return $methods;
+	}
+
+	/**
+	 * Validates if the order shipping method is Woo_packet, then generates the Correios tag
+	 *
+	 * @since 	1.0.0
+	 * @param 	string|int 	$order_id 	Order id.
+	 * @param 	string 		$old_status	The old order status.
+	 * @param 	string 		$new_status	The new order status.
+	 * @param 	object 		$order 		Order.
+	 * @return 	void
+	 */
+	public function order_status_change( $order_id, $old_status, $new_status, $order )
+	{
+		$shipping = reset( $order->get_items( "shipping" ) );
+
+		if ( WOO_PACKET_DOMAIN == $shipping->get_method_id() )
+		{
+			if ( $new_status == "processing" )
+			{
+				try
+				{
+					$api      = new Woo_Packet_Api();
+					$path     = WP_CONTENT_DIR . "/uploads/woo-packet-tags/";
+
+					if ( !file_exists( $path ) ) mkdir( $path, 0755 );
+
+					$location = $path . "/order_{$order_id}.pdf";
+					$result   = $api->generate_tag( $order_id );
+
+					if ( !$result[ "success" ] )
+						throw new Exception( "{$result[ "code" ]} - {$result[ "message" ]}" );
+
+					$data     = $result[ "data" ];
+
+					if ( $data[ "erro" ] || $data[ "codigo" ] != "00" )
+						throw new Exception( "{$data[ "codigo" ]} - {$data[ "mensagem" ]}" );
+
+					$file     = file_put_contents( $location, file_get_contents( $data[ "urldeclaracao" ] ) );
+
+					if ( !$file )
+						throw new Exception( "Etiqueta gerada, mas não foi possível salvar." );
+				}
+				catch ( Exception $e )
+				{
+					$api->log( [
+						"code"    => 500,
+						"error"   => true,
+						"message" => $e->getMessage(),
+					], "critical" );
+				}
+			}
+		}
 	}
 }
