@@ -191,36 +191,38 @@ class Woo_Packet_Shipping extends WC_Shipping_Method
         if ( "" === $package[ "destination" ][ "postcode" ] || "BR" !== $package[ "destination" ][ "country" ] ) return;
 
         // Check if complete postcode
-        $postcode = strlen($package[ "destination" ][ "postcode" ] );
-        if ( $postcode < 8 || $postcode > 9 ) return;
+        $postcode   = strlen($package[ "destination" ][ "postcode" ] );
+        if ( $postcode < 8 || $postcode > 9 )
+        {
+            wc_add_notice( "CEP inválido", "error" );
+            return;
+        }
 
         // Check for shipping classes.
         if ( !$this->has_only_selected_shipping_class( $package ) ) return;
 
-        $this->log( $package, "critical" );
+        $check_data = $this->check_data( $package );
+        if ( !empty( $check_data ) )
+        {
+            wc_add_notice( "Falha na consulta de frete!",               "error" );
+            wc_add_notice( "Falta informações de um ou mais produtos.", "error" );
+            return;
+        }
 
         // executa a consulta a api
         $shipping = $this->get_rate( $package );
 
-        if ( $shipping[ "errorCode" ] )
+        if ( $shipping[ "error" ] )
         {
+            wc_add_notice( "Falha na consulta de frete!",                          "error" );
+            wc_add_notice( "Tente novamente. Se persistir, consulta nossa equipe", "error" );
             $this->log( $shipping, "critical" );
             return;
         }
 
         $meta  = [];
-        $costs = [];
-        $time  = 0;
-
-        foreach ( $shipping[ "data" ] as $data )
-        {
-            if ( $data[ "errorCode" ] ) return;
-
-            $item         = $data[ "data"       ];
-            $id           = $item[ "product_id" ];
-            $costs[ $id ] = ( float ) $item[ "deliveryPrice" ];
-            $time         = ( $item[ "deliveryTime" ] > $time ) ? $item[ "deliveryTime" ] : $time;
-        }
+        $costs = $shipping[ "data" ][ "cost" ];
+        $time  = $shipping[ "data" ][ "time" ];
 
         // Display delivery
         if ( "yes" === $this->show_delivery_time )
@@ -252,8 +254,6 @@ class Woo_Packet_Shipping extends WC_Shipping_Method
         $cep = get_option( "woo_packet_shop_zipcode" );
         $cep = preg_replace( "/\D/", "", $cep );
 
-        $this->log( $package, "critical" );
-
         $this->api->set_service( "33227" );
         $this->api->set_package( $package );
         $this->api->set_origin_postcode( $cep );
@@ -264,37 +264,63 @@ class Woo_Packet_Shipping extends WC_Shipping_Method
         $this->api->set_minimum_width();
         $this->api->set_minimum_length();
 
-        $shipping = $this->api->get_shipping();
+        $response = $this->api->get_shipping();
+        $shipping = $this->process_response( $response );
 
-        $this->log( $shipping, "critical" );
+        if ( $shipping[ "error" ] ) $this->log( $response, "critical" );
 
         return $shipping;
 	}
 
     /**
-     * Process the package
+     * Process response Correios
      *
-     * @param array $package
-     * @return array
+     * @since   1.0.0
+     * @return  array
      */
-    private function process_package( $package )
+    private function process_response( $data )
     {
-        $postalCode = $package[ "destination" ][ "postcode" ];
-        $items      = [];
-
-        foreach ( $package[ "contents" ] as $content )
-        {
-            $product = wc_get_product( $content[ "product_id" ] );
-            $items[] = [
-                "sku"      => $product->get_sku(),
-                "quantity" => $content["quantity"]
-            ];
-        }
+        $data    = json_decode( json_encode( $data ), true );
+        $message = $data[ "MsgErro" ];
+        $error   = ( $data[ "Erro" ] != 0 ) ? true                    : false;
+        $cost    = ( !$error              ) ? $data[ "Valor"        ] : 0.0;
+        $time    = ( !$error              ) ? $data[ "PrazoEntrega" ] : 0;
 
         return [
-            "postalCode" => $postalCode,
-            "items"      => $items
+            "message" => $message,
+            "error"   => $error,
+            "data"    => [
+                "cost" => $cost,
+                "time" => $time,
+            ]
         ];
+    }
+
+    /**
+     * Check package data
+     *
+     * @since   1.0.0
+	 * @param   array $package Cart package.
+     * @return  array
+     */
+    private function check_data( $package )
+    {
+        $response = [];
+
+		// Shipping per item.
+		foreach ( $package[ "contents" ] as $item_id => $values )
+		{
+			$product = $values[ "data" ];
+
+            $ncm = !empty( $product->get_meta( "_custom_product_ncm", true ) ) ? true : false;
+
+            if ( !$ncm                   ) $response[] = false;
+			if ( !$product->get_height() ) $response[] = false;
+            if ( !$product->get_width()  ) $response[] = false;
+            if ( !$product->get_length() ) $response[] = false;
+		}
+
+        return $response;
     }
 
     /**
