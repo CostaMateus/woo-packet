@@ -366,14 +366,20 @@ class Woo_Packet
 
 		if ( $name === $column )
 		{
-			$url  = home_url()     . "/wp-content/uploads/woo-packet-tags/order_{$post->ID}.pdf";
-			$path = WP_CONTENT_DIR . "/uploads/woo-packet-tags/order_{$post->ID}.pdf";
+            $order    = wc_get_order( $post->ID );
+			$shipping = reset( $order->get_items( "shipping" ) );
 
-			$text = ( file_exists( $path ) )
-						? "<a href='{$url}' target='_blank' download class='woo-packet-set-spin' >Baixar etiqueta</a>"
-						: "<a onclick='return wooPacketGenerateTag(this, {$post->ID});' class='woo-packet-set-spin' >Gerar etiqueta <div class='woo-packet-d-none woo-packet-spin-load' ></div></a>";
+			if ( WOO_PACKET_DOMAIN == $shipping->get_method_id() )
+			{
+				$url  = home_url()     . "/wp-content/uploads/woo-packet-tags/order_{$post->ID}.pdf";
+				$path = WP_CONTENT_DIR . "/uploads/woo-packet-tags/order_{$post->ID}.pdf";
 
-			echo $text;
+				$text = ( file_exists( $path ) )
+							? "<a href='{$url}' target='_blank' download class='woo-packet-set-spin' >Baixar etiqueta</a>"
+							: "<a onclick='return wooPacketGenerateTag(this, {$post->ID});' class='woo-packet-set-spin' >Gerar etiqueta <div class='woo-packet-d-none woo-packet-spin-load' ></div></a>";
+
+				echo $text;
+			}
 		}
 	}
 
