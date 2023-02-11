@@ -51,7 +51,6 @@ class Woo_Packet
 			add_action( "woocommerce_product_options_general_product_data", [ $this, "add_product_field_ncm"     ]       );
 			add_action( "woocommerce_process_product_meta",                 [ $this, "save_product_field_ncm"    ]       );
 			add_action( "woocommerce_order_status_changed",                 [ $this, "order_status_change"       ], 9, 4 );
-			// add_action( "admin_print_styles",                               [ $this, "add_style_column"          ]     );
 
 			add_filter( "plugin_action_links_" . plugin_basename( WOO_PACKET_FILE ), [ $this, "plugin_action_links"    ]     );
 			add_filter( "manage_edit-shop_order_columns",                            [ $this, "add_column_title_order" ], 20 );
@@ -383,17 +382,6 @@ class Woo_Packet
 			}
 		}
 	}
-
-	// /**
-	//  * Adjusts the styles for the new 'WooPacket' column.
-	//  *
-	//  * @since 	1.0.0
-	//  */
-	// function add_style_column()
-	// {
-	// 	$css = ".widefat .column-order_date, .widefat .column-order_  . WOO_PACKET_DOMAIN{ width: 9%; }";
-	// 	wp_add_inline_style( "woocommerce_admin_styles", $css );
-	// }
 
 	/**
 	 * Add _custom_product_ncm field to product
