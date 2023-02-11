@@ -311,8 +311,7 @@ class Woo_Packet_Shipping extends WC_Shipping_Method
 		foreach ( $package[ "contents" ] as $item_id => $values )
 		{
 			$product = $values[ "data" ];
-
-            $ncm = !empty( $product->get_meta( "_custom_product_ncm", true ) ) ? true : false;
+            $ncm     = !empty( $product->get_meta( "_custom_product_ncm", true ) ) ? true : false;
 
             if ( !$ncm                   ) $response[] = false;
 			if ( !$product->get_height() ) $response[] = false;
