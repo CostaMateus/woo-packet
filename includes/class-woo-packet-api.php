@@ -125,9 +125,26 @@ class Woo_Packet_Api
                     "hsCode"      => $product->get_meta( "_custom_product_ncm", true ),
                     "description" => substr( $product->get_name(), 0, 30 ),
                     "quantity"    => $item->get_quantity(),
-                    "value"       => ( float ) $item->get_total(),
+                    "value"       => ( float ) $item->get_total() / $item->get_quantity(),
                 ];
             }
+
+            $i      = $order->get_meta( "_woo_packet_tag" );
+
+            if ( is_null( $i ) )
+            {
+                $i = 0;
+                $order->update_meta_data( "_woo_packet_tag", $i );
+                $order->save_meta_data();
+            }
+            else
+            {
+                $i = 1 + ( int ) $i;
+                $order->update_meta_data( "_woo_packet_tag", $i );
+                $order->save_meta_data();
+            }
+
+            $i      = ".{$i}";
 
             $data   = [
                 "packageList" => [
@@ -136,7 +153,7 @@ class Woo_Packet_Api
                         "username"                   => $this->user,
                         "password"                   => $this->userPsw,
 
-                        "customerControlCode"        => $this->tagPrefix . $order_id,
+                        "customerControlCode"        => $this->tagPrefix . $order_id . $i,
 
                         "senderName"                 => $this->shopName,   // "ShopToday INC",
                         "senderEmail"                => $this->shopEmail,  // "sales@shoptoday.com",
