@@ -63,11 +63,11 @@ class Woo_Packet_Shipping extends WC_Shipping_Method
         $this->init_form_fields();
 
         // Define user set variables.
-        $this->enabled            = $this->get_option( "enabled"                );
-        $this->title              = $this->get_option( "title"                  );
-        $this->shipping_class_id  = $this->get_option( "shipping_class_id", "0" );
-        $this->show_delivery_time = $this->get_option( "show_delivery_time"     );
-        $this->additional_time    = $this->get_option( "additional_time"        );
+        $this->enabled            = $this->get_option( "enabled"                    );
+        $this->title              = $this->get_option( "title"                      );
+        $this->shipping_class_id  = $this->get_option( "shipping_class_id", [ "0" ] );
+        $this->show_delivery_time = $this->get_option( "show_delivery_time"         );
+        $this->additional_time    = $this->get_option( "additional_time"            );
 
         // Save settings in admin if you have any defined
         add_action( "woocommerce_update_options_shipping_" . $this->id, [ $this, "process_admin_options" ] );
