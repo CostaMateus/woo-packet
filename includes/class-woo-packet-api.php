@@ -100,18 +100,6 @@ class Woo_Packet_Api
 
             $this->get_shipping( $order );
 
-            $sCep    = preg_replace( "/\D/", "", $this->shopCep   );
-            $sPhone  = preg_replace( "/\D/", "", $this->shopPhone );
-
-            $name    = $order->get_shipping_first_name() . " " . $order->get_shipping_last_name();
-            $cpf     = preg_replace( "/\D/", "", $order->get_meta( "_billing_cpf", true ) );
-            $rCep    = preg_replace( "/\D/", "", $order->get_shipping_postcode() );
-            $rPhone  = preg_replace( "/\D/", "", $order->get_billing_phone() );
-
-            $address = explode( ",", $order->get_billing_address_1() );
-            $rAddr   = trim( $address[ 0 ] );
-            $rNumber = trim( $address[ 1 ] );
-
             $items   = [];
 
             foreach ( $order->get_items() as $item )
@@ -157,26 +145,27 @@ class Woo_Packet_Api
 
                         "senderName"                 => $this->shopName,   // "ShopToday INC",
                         "senderEmail"                => $this->shopEmail,  // "sales@shoptoday.com",
-                        "senderPhone"                => $sPhone,           // "4072352525",
                         "senderAddress"              => $this->shopAddr,   // "Sequel Ave",
                         "senderAddressNumber"        => $this->shopNumber, // "4558",
                         "senderAddressComplement"    => $this->shopComplt, // "",
                         "senderState"                => $this->shopState,  // "Fl",
                         "senderCityName"             => $this->shopCity,   // "Orlando",
-                        "senderZipCode"              => $sCep,             // "34746",
+                        "senderPhone"                => preg_replace( "/\D/", "", $this->shopPhone ), // "4072352525",
+                        "senderZipCode"              => preg_replace( "/\D/", "", $this->shopCep   ), // "34746",
 
                         "recipientDocumentType"      => "CPF",
-                        "recipientDocumentNumber"    => $cpf,
-                        "recipientName"              => $name,
+                        "recipientName"              => $order->get_shipping_first_name() . " " . $order->get_shipping_last_name(),
                         "recipientEmail"             => $order->get_billing_email(),
-                        "recipientPhoneNumber"       => $rPhone,
-                        "recipientAddressNumber"     => $rNumber,
-                        "recipientAddress"           => $rAddr,
+                        "recipientAddressNumber"     => $order->get_meta( "_billing_number", true ),
                         "recipientAddressComplement" => $order->get_billing_address_2(),
                         "recipientBairro"            => $order->get_meta( "_billing_neighborhood", true ),
                         "recipientState"             => $order->get_shipping_state(),
                         "recipientCityName"          => $order->get_shipping_city(),
-                        "recipientZipCode"           => $rCep,
+
+                        "recipientDocumentNumber"    => preg_replace( "/\D/", "", $order->get_meta( "_billing_cpf", true ) ),
+                        "recipientPhoneNumber"       => preg_replace( "/\D/", "", $order->get_billing_phone() ),
+                        "recipientZipCode"           => preg_replace( "/\D/", "", $order->get_shipping_postcode() ),
+                        "recipientAddress"           => explode( ",", $order->get_billing_address_1() )[ 0 ],
 
                         "totalWeight"                => ( float ) str_replace( ",", ".", $this->api->get_weight() ),
 
