@@ -94,6 +94,8 @@ class Woo_Packet_Api
 
         try
         {
+            $dollar  = $this->get_dollar();
+
             $order   = wc_get_order( $order_id );
 
             if ( !$order ) throw new Exception( "Pedido inválido #{$order_id}." );
@@ -109,15 +111,22 @@ class Woo_Packet_Api
                 if ( !$product->meta_exists( "_custom_product_ncm" ) || empty( $product->get_meta( "_custom_product_ncm", true ) ) )
                     throw new Exception( "Há produtos neste pedido (#{$order_id}) que não tem NCM vinculado. Por favor, edite o produto para gerar a etiqueta." );
 
+                $value   = ( float ) $item->get_total() / $item->get_quantity();
+                $value   = $value / $dollar;
+                $value   = ( float ) number_format( $value, 2 );
+
                 $items[] = [
                     "hsCode"      => $product->get_meta( "_custom_product_ncm", true ),
                     "description" => substr( $product->get_name(), 0, 30 ),
                     "quantity"    => $item->get_quantity(),
-                    "value"       => ( float ) $item->get_total() / $item->get_quantity(),
+                    "value"       => $value,
                 ];
             }
 
-            $i      = $order->get_meta( "_woo_packet_tag" );
+            $freight = $this->get_freight() / $dollar;
+            $freight = ( float ) number_format( $freight, 2 );
+
+            $i       = $order->get_meta( "_woo_packet_tag" );
 
             if ( is_null( $i ) )
             {
@@ -173,7 +182,7 @@ class Woo_Packet_Api
                         "packagingWidth"             => ( float ) str_replace( ",", ".", $this->api->get_width()  ), // "13.0000000",
                         "packagingLength"            => ( float ) str_replace( ",", ".", $this->api->get_length() ), // "18.0000000",
 
-                        "freightPaidValue"           => $this->get_freight(),
+                        "freightPaidValue"           => $freight,
 
                         "modal"   => "S",
                         "battery" => "N",
@@ -202,14 +211,58 @@ class Woo_Packet_Api
         }
     }
 
+
+    /**
+     * Get current dollar quote
+     *
+	 * @since 	1.0.0
+     * @return  float
+     */
+    private function get_dollar()
+    {
+        try
+        {
+            $response = $this->exec( [], "GET", "https://economia.awesomeapi.com.br/json/last/USD-BRL" );
+
+            if ( $response[ "success" ] )
+            {
+                $data     = $response[ "data" ][ "USDBRL" ];
+                $high     = ( float ) $data[ "high" ];
+                $low      = ( float ) $data[ "low" ];
+                $avg      = ( $high + $low ) / 2;
+                $response = ( float ) number_format( $avg, 2 );
+            }
+            else
+            {
+                $response = 5.0;
+            }
+        }
+        catch ( Exception $e )
+        {
+            $this->log( [
+                "code"    => 500,
+                "success" => false,
+                "message" => $e->getMessage(),
+                "error"   => 5000,
+                "data"    => [ null, "dolar usado R$5" ],
+            ], "critical" );
+
+            $response = 5.0;
+        }
+
+        return $response;
+    }
+
 	/**
 	 * Make request to the API
 	 *
 	 * @since 	1.0.0
-	 * @param   array $params Body of request
+	 * @param   array|null  $params Body of request
+	 * @param   string|null $method Method of request
+	 * @param   string|null $url    URL of request
 	 * @return  array
 	 */
-    private function exec( array $params )
+    private function exec( array $params, string $method = "POST", string $url = "" )
     {
         try
         {
@@ -232,7 +285,7 @@ class Woo_Packet_Api
             $params   = ( !empty( $params ) ) ? json_encode( $params ) : null;
 
             curl_setopt_array( $curl, [
-                CURLOPT_URL            => $this->url,
+                CURLOPT_URL            => ( $method == "POST" ) ? $this->url : $url,
                 CURLOPT_RETURNTRANSFER => TRUE,
                 CURLOPT_ENCODING       => "",
                 CURLOPT_MAXREDIRS      => 10,
@@ -240,9 +293,9 @@ class Woo_Packet_Api
                 CURLOPT_FOLLOWLOCATION => TRUE,
                 CURLOPT_SSL_VERIFYPEER => TRUE,
                 CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST  => "POST",
-                CURLOPT_POSTFIELDS     => $params,
-                CURLOPT_HTTPHEADER     => $this->header,
+                CURLOPT_CUSTOMREQUEST  => $method,
+                CURLOPT_POSTFIELDS     => ( $method == "POST" ) ? $params       : null,
+                CURLOPT_HTTPHEADER     => ( $method == "POST" ) ? $this->header : [],
             ] );
 
             $response = curl_exec( $curl );
@@ -365,7 +418,7 @@ class Woo_Packet_Api
      *
      *
 	 * @since 	1.0.0
-     * @return  void
+     * @return  float
      */
     private function get_freight()
     {
