@@ -38,26 +38,33 @@ class Woo_Packet
     {
 		if ( class_exists( "WooCommerce" ) )
 		{
-			// API Class
-			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-api.php";
-			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-package.php";
-			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-webservice.php";
-			include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-shipping.php";
+			if ( class_exists( "Extra_Checkout_Fields_For_Brazil" ) )
+			{
+				// API Class
+				include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-api.php";
+				include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-package.php";
+				include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-webservice.php";
+				include_once plugin_dir_path( dirname( __FILE__ ) ) . "/includes/class-woo-packet-shipping.php";
 
-			add_action( "admin_menu",                                       [ $this, "add_admin_menu"            ], 11   );
-			add_action( "admin_init",                                       [ $this, "register_and_build_fields" ]       );
-			add_action( "manage_shop_order_posts_custom_column",            [ $this, "add_column_content_order"  ]       );
-			add_action( "wp_ajax_generate_tag_correios",                    [ $this, "generate_tag_correios"     ]       );
-			add_action( "woocommerce_product_options_general_product_data", [ $this, "add_product_field_ncm"     ]       );
-			add_action( "woocommerce_process_product_meta",                 [ $this, "save_product_field_ncm"    ]       );
-			add_action( "woocommerce_order_status_changed",                 [ $this, "order_status_change"       ], 9, 4 );
+				add_action( "admin_menu",                                       [ $this, "add_admin_menu"            ], 11   );
+				add_action( "admin_init",                                       [ $this, "register_and_build_fields" ]       );
+				add_action( "manage_shop_order_posts_custom_column",            [ $this, "add_column_content_order"  ]       );
+				add_action( "wp_ajax_generate_tag_correios",                    [ $this, "generate_tag_correios"     ]       );
+				add_action( "woocommerce_product_options_general_product_data", [ $this, "add_product_field_ncm"     ]       );
+				add_action( "woocommerce_process_product_meta",                 [ $this, "save_product_field_ncm"    ]       );
+				add_action( "woocommerce_order_status_changed",                 [ $this, "order_status_change"       ], 9, 4 );
 
-			add_filter( "plugin_action_links_" . plugin_basename( WOO_PACKET_FILE ), [ $this, "plugin_action_links"    ]     );
-			add_filter( "manage_edit-shop_order_columns",                            [ $this, "add_column_title_order" ], 20 );
-			add_filter( "woocommerce_shipping_methods",                              [ $this, "shipping_method"        ]     );
+				add_filter( "plugin_action_links_" . plugin_basename( WOO_PACKET_FILE ), [ $this, "plugin_action_links"    ]     );
+				add_filter( "manage_edit-shop_order_columns",                            [ $this, "add_column_title_order" ], 20 );
+				add_filter( "woocommerce_shipping_methods",                              [ $this, "shipping_method"        ]     );
 
-			wp_enqueue_style(  WOO_PACKET_DOMAIN, plugin_dir_url( dirname( __FILE__ ) ) . "assets/css/admin.css", [],           WOO_PACKET_VERSION, "all" );
-			wp_enqueue_script( WOO_PACKET_DOMAIN, plugin_dir_url( dirname( __FILE__ ) ) . "assets/js/admin.js",   [ "jquery" ], WOO_PACKET_VERSION, false );
+				wp_enqueue_style(  WOO_PACKET_DOMAIN, plugin_dir_url( dirname( __FILE__ ) ) . "assets/css/admin.css", [],           WOO_PACKET_VERSION, "all" );
+				wp_enqueue_script( WOO_PACKET_DOMAIN, plugin_dir_url( dirname( __FILE__ ) ) . "assets/js/admin.js",   [ "jquery" ], WOO_PACKET_VERSION, false );
+			}
+			else
+			{
+				add_action( "admin_notices", [ $this, "ecfb_missing_notice" ] );
+			}
 		}
 		else
 		{
@@ -88,6 +95,16 @@ class Woo_Packet
 	public static function woocommerce_missing_notice()
 	{
 		include_once plugin_dir_path( dirname( __FILE__ ) ) . "/template/missing-woocommerce.php";
+	}
+
+	/**
+	 * Extra Checkout Fields For Brazil missing notice.
+	 *
+	 * @since	1.0.0
+	 */
+	public static function ecfb_missing_notice()
+	{
+		include_once plugin_dir_path( dirname( __FILE__ ) ) . "/template/missing-ecfb.php";
 	}
 
 	/**
