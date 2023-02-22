@@ -1,0 +1,19 @@
+Configuração Do Plugin
+
+1) Preencher dados na página de configuração do plugin.
+/wp-admin/admin.php?page=woo_packet
+
+2) Adicionar o método de entrega ao woocommerce.
+woocommerce > configurações > entrega > área de entrega > (escolher a zona) > adicionar método de entrega
+
+3) Adicionar classe de entrega (ex: internacional) que identificará os produtos que usaram as etiquetas do Correio.
+woocommerce > configurações > entrega > classe de entrega > adicionar classe de entrega
+
+3) Com o método e a classe criados, nas configurações do método de entrega, no campo 'classe de entrega' selecionar a classe criada no passo 3.
+E ajustar demais campos conforme a necessidade.
+
+4) Configurar em cada produto a classe de entrega criada no passo 3.
+
+5) Configurar código NCM dos produtos.
+
+6) Testar.
